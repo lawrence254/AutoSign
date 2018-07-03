@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.lawrence254.autosign.client.ClientActivity;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Login extends AppCompatActivity {
@@ -22,14 +23,10 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        List<AuthUI.IdpConfig> providers = Arrays.asList(
-                new AuthUI.IdpConfig.EmailBuilder().build(),
-                new AuthUI.IdpConfig.GoogleBuilder().build());
-
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
-                        .setAvailableProviders(providers)
+                        .setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().build()))
                         .build(),
                 RC_SIGN_IN);
     }
