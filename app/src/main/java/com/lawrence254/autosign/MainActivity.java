@@ -32,12 +32,14 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
     public static final String STRATEGY= "P2P_STAR";
 
     GoogleApiClient mGoogleApiClient;
-    private String endpoint;
+    private String mEndpoint;
 
     private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
         public void onPayloadReceived(String endpoint, Payload payload) {
             Log.e("Moringa: ", new String(payload.asBytes()));
+
+            sendMessage("Echo: " + new String(payload.asBytes()));
         }
 
         @Override
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                   endpoint = endpointId;
+                    mEndpoint = endpointId;
 
 //                    PayloadCallback mPayloadCallback = null;
                     Nearby.Connections.acceptConnection(mGoogleApiClient, endpointId, mPayloadCallback)
@@ -57,7 +59,6 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
                                 public void onResult(@NonNull com.google.android.gms.common.api.Status status) {
                                     if( status.isSuccess() ) {
                                         //Connection accepted
-                                        Log.e("Test", "connected");
                                     }
                                 }
                             });
@@ -97,6 +98,10 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
                 mConnectionLifecycleCallback,
                 new AdvertisingOptions(com.google.android.gms.nearby.connection.Strategy.P2P_STAR));
 
+
+    }
+    private void sendMessage(String message) {
+        Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(message.getBytes()));
 
     }
 

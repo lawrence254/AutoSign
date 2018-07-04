@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,12 +41,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         FirebaseUser user = auth.getCurrentUser();
         if (user != null){
-            Intent intent =  new Intent(RegisterActivity.this, Login.class);
+            Intent intent =  new Intent(RegisterActivity.this, MainActivity.class);
             startActivity(intent);
         }
 
         mRegister.setOnClickListener(this);
     }
+
 
     @Override
     public void onClick(View v) {
@@ -67,33 +69,41 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
-            auth.createUserWithEmailAndPassword(email, pass)
-                    .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
 
+            auth.createUserWithEmailAndPassword(email, pass)
+                    .addOnFailureListener(this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(RegisterActivity.this, "Invalid Credentials", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
-
-                            FirebaseUser user = auth.getCurrentUser();
-                            insertData(user);
-//                            Toast.makeText(RegisterActivity.this, "User data: "+user.getEmail(), Toast.LENGTH_SHORT).show();
+                            if (task.isSuccessful()){
+                                FirebaseUser user = auth.getCurrentUser();
+                                insertData(user);
+                                Toast.makeText(RegisterActivity.this, "Account Created Successfully", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(RegisterActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
         }
     }
-
     private void insertData(FirebaseUser user) {
         if (user != null){
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
             Map<String, String> map = new HashMap<>();
-            map.put("email", user.getProviders().get(0));
-//            if(user.getProviderData().contains(0)) {
-//                map.put("email", user.getProviderData().get(0).toString());
-//            }
-            Toast.makeText(this, "Regg"+map, Toast.LENGTH_SHORT).show();
+            map.put("email",user.getEmail());
+            map.put("class","JAVA-MC9");
+
+            Toast.makeText(this, "Reg: "+map, Toast.LENGTH_SHORT).show();
             ref.child("students").child(user.getUid()).setValue(map);
             Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
             startActivity(intent);
         }
     }
 }
+

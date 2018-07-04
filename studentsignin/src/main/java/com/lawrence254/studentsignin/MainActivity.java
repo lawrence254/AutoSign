@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         @Override
         public void onPayloadReceived(String endpoint, Payload payload) {
             Log.e("Moringa: ", new String(payload.asBytes()));
+
+            addText(new String(payload.asBytes()));
         }
 
         @Override
@@ -60,8 +63,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
+                    Nearby.Connections.acceptConnection(mGoogleApiClient, endpointId, mPayloadCallback);
                     mEndpoint = endpointId;
-
+                    Nearby.Connections.stopDiscovery(mGoogleApiClient);
                     Nearby.Connections.acceptConnection(mGoogleApiClient, endpointId, mPayloadCallback)
                             .setResultCallback(new ResultCallback<Status>() {
                                 @Override
@@ -85,13 +89,14 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private final EndpointDiscoveryCallback endpointDiscoveryCallback = new EndpointDiscoveryCallback() {
         @Override
         public void onEndpointFound(String endpointId, DiscoveredEndpointInfo discoveredEndpointInfo) {
-//            mEndpoint = endpointId;
+            mEndpoint = endpointId;
             if (discoveredEndpointInfo.getServiceId().equals(SERVICE_ID)){
                 Nearby.Connections.requestConnection(
                         mGoogleApiClient,
                         "STUDENT",
                         endpointId,
                         mConnectionLifecycleCallback);
+                Toast.makeText(MainActivity.this, "Connected to: "+mEndpoint, Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -122,27 +127,17 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 SERVICE_ID,
                 endpointDiscoveryCallback,
                 new DiscoveryOptions(Strategy.P2P_STAR)
-//                new DiscoveryOptions(Strategy.P2P_STAR)
         );
     }
 
-    public void sendPayload(View v) {
-//        String text = mEditText.getText().toString();
-//        addText(text);
-//        mEditText.setText("");
-//        Calendar calendar = Calendar.getInstance();
-//        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy / MM / dd ");
-//        SimpleDateFormat tmformar = new SimpleDateFormat("HH:mm");
-//
-//        String time = tmformar.format(calendar.getTime());
-//        String date = mdformat.format(calendar.getTime());
-//
-//        Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(time.getBytes()));
+    private void addText(String text) {
+        mTime.setText(text);
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         startDiscovery();
+        Toast.makeText(this, "API Connected", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -175,6 +170,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         String date = mdformat.format(calendar.getTime());
         mTime.setText(time);
         Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(time.getBytes()));
-//        Log.d("Payload", "Sent: "+Payload.fromBytes(time.getBytes()));
+//        Toast.makeText(this, "Sent Payload: "+new String(String.valueOf(Payload.fromBytes(time.getBytes()))), Toast.LENGTH_SHORT).show();
     }
 }
