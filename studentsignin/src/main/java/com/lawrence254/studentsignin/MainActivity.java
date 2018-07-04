@@ -5,6 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -22,7 +25,22 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener {
+    @BindView(R.id.signclass)Button mSclass;
+    @BindView(R.id.timedisp)TextView mTime;
     public static final String SERVICE_ID="MC9-ANDROID";
 
     GoogleApiClient mGoogleApiClient;
@@ -89,11 +107,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this, this, this)
                 .addApi(Nearby.CONNECTIONS_API)
                 .enableAutoManage(this, this)
                 .build();
+        mSclass.setOnClickListener(this);
     }
 
     public void startDiscovery(){
@@ -102,7 +122,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 SERVICE_ID,
                 endpointDiscoveryCallback,
                 new DiscoveryOptions(Strategy.P2P_STAR)
+//                new DiscoveryOptions(Strategy.P2P_STAR)
         );
+    }
+
+    public void sendPayload(View v) {
+//        String text = mEditText.getText().toString();
+//        addText(text);
+//        mEditText.setText("");
+//        Calendar calendar = Calendar.getInstance();
+//        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy / MM / dd ");
+//        SimpleDateFormat tmformar = new SimpleDateFormat("HH:mm");
+//
+//        String time = tmformar.format(calendar.getTime());
+//        String date = mdformat.format(calendar.getTime());
+//
+//        Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(time.getBytes()));
     }
 
     @Override
@@ -122,11 +157,24 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Nearby.Connections.disconnectFromEndpoint(mGoogleApiClient, mEndpoint);
+        Nearby.getConnectionsClient(getApplicationContext()).disconnectFromEndpoint(mEndpoint);
     }
 
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat mdformat = new SimpleDateFormat("yyyy / MM / dd ");
+        SimpleDateFormat tmformar = new SimpleDateFormat("HH:mm");
+
+        String time = tmformar.format(calendar.getTime());
+        String date = mdformat.format(calendar.getTime());
+        mTime.setText(time);
+        Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(time.getBytes()));
+//        Log.d("Payload", "Sent: "+Payload.fromBytes(time.getBytes()));
     }
 }

@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
     public static final String STRATEGY= "P2P_STAR";
 
     GoogleApiClient mGoogleApiClient;
+    private String endpoint;
 
     private PayloadCallback mPayloadCallback = new PayloadCallback() {
         @Override
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
             new ConnectionLifecycleCallback() {
                 @Override
                 public void onConnectionInitiated(String endpointId, ConnectionInfo connectionInfo) {
-                    String endpoint = endpointId;
+                   endpoint = endpointId;
 
 //                    PayloadCallback mPayloadCallback = null;
                     Nearby.Connections.acceptConnection(mGoogleApiClient, endpointId, mPayloadCallback)
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
                                 public void onResult(@NonNull com.google.android.gms.common.api.Status status) {
                                     if( status.isSuccess() ) {
                                         //Connection accepted
+                                        Log.e("Test", "connected");
                                     }
                                 }
                             });
