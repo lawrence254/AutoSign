@@ -24,6 +24,8 @@ import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.messages.Strategy;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
 
@@ -39,7 +41,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
         public void onPayloadReceived(String endpoint, Payload payload) {
             Log.e("Moringa: ", new String(payload.asBytes()));
 
-            sendMessage("Echo: " + new String(payload.asBytes()));
+            sendMessage("Arrived At: " + new String(payload.asBytes()));
         }
 
         @Override
