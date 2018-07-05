@@ -25,6 +25,14 @@ import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,9 +48,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks, View.OnClickListener {
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
     @BindView(R.id.signclass)Button mSclass;
     @BindView(R.id.timedisp)TextView mTime;
-    public static final String SERVICE_ID="MC9-ANDROID";
+    @BindView(R.id.serv)TextView ser;
+    String SERVICE_ID="";
 
     GoogleApiClient mGoogleApiClient;
     private String mEndpoint;
@@ -53,6 +65,21 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             Log.e("Moringa: ", new String(payload.asBytes()));
 
             addText(new String(payload.asBytes()));
+
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat mdformat = new SimpleDateFormat("yyyy / MM / dd ");
+            SimpleDateFormat tmformar = new SimpleDateFormat("HH:mm");
+
+            String time = tmformar.format(calendar.getTime());
+            String date = mdformat.format(calendar.getTime());
+
+            Map<String, String> map = new HashMap<>();
+            map.put("time",time);
+            map.put("date",date);
+            map.put("student",user.getEmail());
+            map.put("module",SERVICE_ID);
+
+            reference.child("attendance").child(user.getUid()).push().setValue(map);
         }
 
         @Override
@@ -97,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         endpointId,
                         mConnectionLifecycleCallback);
                 Toast.makeText(MainActivity.this, "Connected to: "+mEndpoint, Toast.LENGTH_SHORT).show();
+
             }
 
         }
@@ -122,12 +150,27 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     }
 
     public void startDiscovery(){
-        Nearby.Connections.startDiscovery(
+        Query query = reference.child("students")
+                .child(user.getUid())
+                .child("class");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                SERVICE_ID = String.valueOf(dataSnapshot.getValue());
+                Nearby.Connections.startDiscovery(
                 mGoogleApiClient,
-                SERVICE_ID,
+                        SERVICE_ID,
                 endpointDiscoveryCallback,
-                new DiscoveryOptions(Strategy.P2P_STAR)
-        );
+                new DiscoveryOptions(Strategy.P2P_STAR));
+                ser.setText(SERVICE_ID);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+    });
+
     }
 
     private void addText(String text) {
@@ -169,6 +212,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         String time = tmformar.format(calendar.getTime());
         String date = mdformat.format(calendar.getTime());
         mTime.setText(time);
+
+//        Map<String, String> map = new HashMap<>();
+//        map.put("time",time);
+//        map.put("date",date);
+//        map.put("student",user.getEmail());
+//        map.put("module",reference.child("students").child(user.getUid()).child("class").toString());
+//
+//        reference.child("attendance").child(user.getUid()).push().setValue(map);
+
         Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(time.getBytes()));
 //        Toast.makeText(this, "Sent Payload: "+new String(String.valueOf(Payload.fromBytes(time.getBytes()))), Toast.LENGTH_SHORT).show();
     }

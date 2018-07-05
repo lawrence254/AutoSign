@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,12 +27,24 @@ import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.messages.Strategy;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+    DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+    @BindView(R.id.ser)TextView mSer;
+
 
     public static final String CLIENT_NAME="TEACHER";
-    public static final String SERVICE_ID="MC9-ANDROID";
-    public static final String STRATEGY= "P2P_STAR";
+    String SERVICE_ID ="";
 
     GoogleApiClient mGoogleApiClient;
     private String mEndpoint;
@@ -40,7 +53,6 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
         @Override
         public void onPayloadReceived(String endpoint, Payload payload) {
             Log.e("Moringa: ", new String(payload.asBytes()));
-
             sendMessage("Arrived At: " + new String(payload.asBytes()));
         }
 
@@ -79,7 +91,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ButterKnife.bind(this);
         mGoogleApiClient = new GoogleApiClient
                 .Builder(this, this, this)
                 .addApi(Nearby.CONNECTIONS_API)
@@ -93,14 +105,28 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
         startAdvertising();
     }
     private void startAdvertising() {
-        Nearby.Connections.startAdvertising(
-                mGoogleApiClient,
-                CLIENT_NAME,
-                SERVICE_ID,
-                mConnectionLifecycleCallback,
-                new AdvertisingOptions(com.google.android.gms.nearby.connection.Strategy.P2P_STAR));
+        Query query = reference.child("teacher")
+                .child(user.getUid())
+                .child("class");
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                SERVICE_ID = String.valueOf(dataSnapshot.getValue());
 
+                Nearby.Connections.startAdvertising(
+                        mGoogleApiClient,
+                        CLIENT_NAME,
+                        SERVICE_ID,
+                        mConnectionLifecycleCallback,
+                        new AdvertisingOptions(com.google.android.gms.nearby.connection.Strategy.P2P_STAR));
+                mSer.setText(SERVICE_ID);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     private void sendMessage(String message) {
         Nearby.Connections.sendPayload(mGoogleApiClient, mEndpoint, Payload.fromBytes(message.getBytes()));

@@ -6,8 +6,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.data.model.User;
@@ -20,7 +22,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -30,6 +34,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.uEmail)EditText mEmail;
     @BindView(R.id.uPass)EditText mPass;
     @BindView(R.id.uregister)Button mRegister;
+    @BindView(R.id.modules)Spinner mSpin;
     FirebaseAuth auth;
 
     @Override
@@ -46,6 +51,17 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         mRegister.setOnClickListener(this);
+
+        List<String> spinnerarray=new ArrayList<>();
+        spinnerarray.add("Tap to select assigned module");
+        spinnerarray.add("PYTHON MC9");
+        spinnerarray.add("JAVA MC9");
+        spinnerarray.add("PYTHON MC10");
+        spinnerarray.add("PREP 11");
+
+        ArrayAdapter<String> adapter= new ArrayAdapter<>(RegisterActivity.this, android.R.layout.simple_spinner_item, spinnerarray);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpin.setAdapter(adapter);
     }
 
 
@@ -94,13 +110,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
     private void insertData(FirebaseUser user) {
         if (user != null){
+            String module = mSpin.getSelectedItem().toString();
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
             Map<String, String> map = new HashMap<>();
             map.put("email",user.getEmail());
-            map.put("class","JAVA-MC9");
+            map.put("class",module);
 
-            Toast.makeText(this, "Reg: "+map, Toast.LENGTH_SHORT).show();
-            ref.child("students").child(user.getUid()).setValue(map);
+//            Toast.makeText(this, "Reg: "+map, Toast.LENGTH_SHORT).show();
+            ref.child("teacher").child(user.getUid()).setValue(map);
             Intent intent = new Intent(RegisterActivity.this,MainActivity.class);
             startActivity(intent);
         }

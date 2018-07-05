@@ -12,7 +12,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -42,6 +41,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         ButterKnife.bind(this);
+
         auth = FirebaseAuth.getInstance();
 
         FirebaseUser user = auth.getCurrentUser();
@@ -58,7 +58,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         spinnerarray.add("PREP 11");
 
         ArrayAdapter<String> adapter= new ArrayAdapter<>(RegisterActivity.this, android.R.layout.simple_spinner_item, spinnerarray);
-
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpin.setAdapter(adapter);
 
@@ -111,7 +110,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
     private void insertData(FirebaseUser user) {
         if (user != null){
+
             String module = mSpin.getSelectedItem().toString();
+
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
             Map<String, String> map = new HashMap<>();
             map.put("email",user.getEmail());
