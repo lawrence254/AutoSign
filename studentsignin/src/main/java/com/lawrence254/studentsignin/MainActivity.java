@@ -79,7 +79,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             map.put("student",user.getEmail());
             map.put("module",SERVICE_ID);
 
-            reference.child("attendance").child(user.getUid()).push().setValue(map);
+//            reference.child("attendance").child(user.getUid()).push().setValue(map);
+            reference.child("attendance").push().setValue(map);
         }
 
         @Override

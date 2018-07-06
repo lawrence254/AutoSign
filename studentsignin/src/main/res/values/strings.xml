@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Student Signin</string>
+    <string name="minimum">Password is shorter than 6 characters</string>
+    <string name="auth_failed">Login Has Failed. Try again</string>
 </resources>
