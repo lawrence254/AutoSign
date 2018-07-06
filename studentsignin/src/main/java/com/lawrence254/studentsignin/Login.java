@@ -24,6 +24,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
     @BindView(R.id.email)EditText mEmail;
     @BindView(R.id.pass)EditText mPass;
     @BindView(R.id.login)Button mlogin;
+    @BindView(R.id.reg)Button mRegister;
     FirebaseAuth auth;
     ProgressBar progressBar;
 
@@ -39,6 +40,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             startActivity(intent);
         }
 
+        mRegister.setOnClickListener(this);
         mlogin.setOnClickListener(this);
     }
 
@@ -80,6 +82,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
                         }
                     });
+        }
+        else if (v==mRegister){
+            Intent intent = new Intent(Login.this, RegisterActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 }

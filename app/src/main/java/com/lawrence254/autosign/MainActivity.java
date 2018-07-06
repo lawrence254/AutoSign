@@ -111,18 +111,14 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
+                mAttend.clear();
                 for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
                     Attendance attendance = messageSnapshot.getValue(Attendance.class);
                     mAttend.add(attendance);
-                    FirebaseRecyclerOptions<Attendance> options = new FirebaseRecyclerOptions.Builder<Attendance>()
-                            .setQuery(query, Attendance.class)
-                            .build();
-                    attendanceAdapter = new FirebaseAttendanceAdapter(getApplicationContext(),mAttend);
-                    mRecycle.setHasFixedSize(true);
-                    mRecycle.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-                    mRecycle.setAdapter(attendanceAdapter);
+
+//                    attendanceAdapter.notifyDataSetChanged();
                 }
+                attendanceAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -131,11 +127,16 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
             }
         });
 
+        attendanceAdapter = new FirebaseAttendanceAdapter(getApplicationContext(),mAttend);
+        mRecycle.setHasFixedSize(true);
+        mRecycle.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        mRecycle.setAdapter(attendanceAdapter);
+
     }
 //    @Override
 //    protected void onDestroy() {
 //        super.onDestroy();
-//        firebaseRecyclerAdapter.cleanup();
+//        attendanceAdapter.cleanup();
 //    }
 
     @Override

@@ -34,6 +34,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @BindView(R.id.uEmail)EditText mEmail;
     @BindView(R.id.uPass)EditText mPass;
     @BindView(R.id.uregister)Button mRegister;
+    @BindView(R.id.login)Button mLogin;
     @BindView(R.id.modules)Spinner mSpin;
     FirebaseAuth auth;
 
@@ -51,6 +52,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
 
         mRegister.setOnClickListener(this);
+        mLogin.setOnClickListener(this);
 
         List<String> spinnerarray=new ArrayList<>();
         spinnerarray.add("Tap to select assigned module");
@@ -106,6 +108,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                             }
                         }
                     });
+        }
+        else if (v==mLogin){
+            Intent intent = new Intent(RegisterActivity.this,Login.class);
+            startActivity(intent);
         }
     }
     private void insertData(FirebaseUser user) {

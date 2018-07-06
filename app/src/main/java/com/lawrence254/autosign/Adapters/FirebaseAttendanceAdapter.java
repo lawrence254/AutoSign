@@ -43,6 +43,7 @@ public class FirebaseAttendanceAdapter extends RecyclerView.Adapter<FirebaseAtte
 
     @Override
     public int getItemCount() {
+
         return mAttendance.size();
     }
 
