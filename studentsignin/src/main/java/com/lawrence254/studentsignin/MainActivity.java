@@ -125,7 +125,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         endpointId,
                         mConnectionLifecycleCallback);
                 Toast.makeText(MainActivity.this, "Connected to: "+mEndpoint, Toast.LENGTH_SHORT).show();
-
+                    mSclass.setEnabled(true);
+                mSclass.setBackgroundResource(R.color.colorPrimaryDark);
+                    ser.setText("Connected To TM");
             }
 
         }
@@ -148,6 +150,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .enableAutoManage(this, this)
                 .build();
         mSclass.setOnClickListener(this);
+        ser.setText("Searching for TM Device");
+        mSclass.setEnabled(false);
+        mSclass.setBackgroundResource(R.color.colorDivider);
+        mTime.setText("");
     }
 
     public void startDiscovery(){
@@ -163,7 +169,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         SERVICE_ID,
                 endpointDiscoveryCallback,
                 new DiscoveryOptions(Strategy.P2P_STAR));
-                ser.setText(SERVICE_ID);
+//                ser.setText(SERVICE_ID);
             }
 
             @Override

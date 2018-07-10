@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity  implements GoogleApiClient.
                 mAttend.clear();
                 for (DataSnapshot messageSnapshot : dataSnapshot.getChildren()) {
                     Attendance attendance = messageSnapshot.getValue(Attendance.class);
+
                     mAttend.add(attendance);
 
 //                    attendanceAdapter.notifyDataSetChanged();
